@@ -294,15 +294,14 @@ def get_ds_config(cfg: Any):
         ] = True
 
     # TODO: Do not enable offload cpu for now.
-    # if cfg.environment.deepspeed_offload_optimizer:
-    #     ds_config["zero_optimization"]["offload_optimizer"] = {
-    #         "device": "cpu",
-    #         "pin_memory": True,
-    #     }
+    if cfg.environment.deepspeed_offload_optimizer:
+        ds_config["zero_optimization"]["offload_optimizer"] = {
+            "device": "cpu",
+            "pin_memory": True,
+        }
     # TODO: RuntimeError: Tensors must be CUDA and dense
-    # if cfg.environment.deepspeed_offload_param:
-    #     ds_config["zero_optimization"]["offload_param"] =
-    #         {"device": "cpu", "pin_memory": True}
+    if cfg.environment.deepspeed_offload_param:
+        ds_config["zero_optimization"]["offload_param"] =  {"device": "cpu", "pin_memory": True}
 
     logger.info(f"DeepSpeed config: {ds_config}")
 
