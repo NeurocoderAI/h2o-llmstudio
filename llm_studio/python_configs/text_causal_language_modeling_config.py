@@ -394,16 +394,16 @@ class ConfigNLPCausalLMEnvironment(DefaultConfig):
         self._possible_values["seed"] = possible_values.Number(step=1, min=-1)
         self._possible_values["deepspeed_method"] = ["ZeRO2", "ZeRO3"]
         self._possible_values["deepspeed_allgather_bucket_size"] = (
-            possible_values.Number(step=1, min=1e3)
+            possible_values.Number(step=1, min=1e6)
         )
         self._possible_values["deepspeed_reduce_bucket_size"] = possible_values.Number(
             step=1, min=1e6
         )
         self._possible_values["deepspeed_stage3_prefetch_bucket_size"] = (
-            possible_values.Number(step=1, min=1e3)
+            possible_values.Number(step=1, min=1e6)
         )
         self._possible_values["deepspeed_stage3_param_persistence_threshold"] = (
-            possible_values.Number(step=1, min=1e2)
+            possible_values.Number(step=1, min=1e6)
         )
         self._possible_values["deepspeed_stage3_max_live_parameters"] = (
             possible_values.Number(step=1, min=1e6)
