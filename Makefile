@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 PYTHON_VERSION ?= 3.10
 PYTHON ?= python$(PYTHON_VERSION)
 PIP ?= $(PYTHON) -m pip
@@ -99,6 +101,7 @@ test: reports
 
 .PHONY: test-ui
 test-ui: reports setup-ui
+	@bash -c 'set -o pipefail; \
 	$(PW_DEBUG) $(PIPENV) run pytest \
 	-v \
 	--junitxml=reports/junit_ui.xml \
@@ -106,7 +109,7 @@ test-ui: reports setup-ui
 	-o log_cli=true \
 	-o log_level=$(LOG_LEVEL) \
 	-o log_file=reports/tests_ui.log \
-	tests/ui/test.py 2>&1 | tee reports/tests_ui.log
+	tests/ui/test.py 2>&1 | tee reports/tests_ui.log'
 
 .PHONY: test-ui-headed
 test-ui-headed: setup-ui
@@ -117,6 +120,21 @@ test-ui-headed: setup-ui
 	--screenshot=on \
 	--slowmo=100 \
 	tests/ui/test.py 2>&1 | tee reports/tests.log
+
+.PHONY: test-ui-github-actions  # Run UI tests in GitHub Actions. Starts the Wave server and runs the tests locally.
+test-ui-github-actions: reports setup-ui
+	@echo "Starting the server..."
+	make llmstudio &
+	@echo "Server started in background."
+	@echo "Waiting 10s for the server to start..."
+	sleep 10
+	@echo "Running the tests..."
+	LOCAL_LOGIN=True \
+	PYTEST_BASE_URL=localhost:10101 \
+	make test-ui
+	@echo "Stopping the server..."
+	make stop-llmstudio
+	@echo "Server stopped."
 
 .PHONY: wave
 wave:
@@ -134,6 +152,10 @@ llmstudio:
 	H2O_WAVE_NO_LOG=true \
 	H2O_WAVE_PRIVATE_DIR="/download/@$(WORKDIR)/output/download" \
 	$(PIPENV) run wave run --no-reload app
+
+.PHONY: stop-llmstudio
+stop-llmstudio:
+	@kill $$(lsof -ti :10101)
 
 .PHONY: docker-build-nightly
 docker-build-nightly:
