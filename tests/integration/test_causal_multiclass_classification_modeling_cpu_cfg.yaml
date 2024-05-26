@@ -65,7 +65,7 @@ tokenizer:
     max_length_answer: 16
     max_length_prompt: 16
     padding_quantile: 1.0
-    use_fast: true
+    tokenizer_kwargs: '{"use_fast": true, "add_prefix_space": false}'
 training:
     batch_size: 2
     differential_learning_rate: 1.0e-05
@@ -79,6 +79,7 @@ training:
     gradient_clip: 0.0
     learning_rate: 0.0001
     lora: true
+    use_dora: false
     lora_alpha: 16
     lora_dropout: 0.05
     lora_r: 4

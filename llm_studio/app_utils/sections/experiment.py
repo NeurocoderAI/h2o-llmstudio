@@ -1705,6 +1705,7 @@ async def experiment_download_model(q: Q):
         # Add all files that were created after the model was saved.
         # This is useful for potential changes/different
         # naming conventions across different backbones.
+        # Also adds newly generated safetensor files.
         for file in os.listdir(checkpoint_path):
             file_path = os.path.join(checkpoint_path, file)
             if (
@@ -1718,6 +1719,19 @@ async def experiment_download_model(q: Q):
                     f"Added {file_path} to zip file as it "
                     "was created when saving the model state."
                 )
+
+        # Add all files from subdirectories, which include the intermediate checkpoints
+        subdirectories = [
+            d
+            for d in os.listdir(checkpoint_path)
+            if os.path.isdir(os.path.join(checkpoint_path, d))
+        ]
+        for subdirectory in subdirectories:
+            for file in os.listdir(os.path.join(checkpoint_path, subdirectory)):
+                file_path = os.path.join(checkpoint_path, subdirectory, file)
+                add_file_to_zip(zf=zf, path=file_path, folder=subdirectory)
+                paths_added.append(file_path)
+                logger.info(f"Added {file_path} to zip file.")
         zf.close()
 
     download_url = get_download_link(q, zip_path)
@@ -1903,7 +1917,6 @@ def get_experiment_summary_code_card(cfg) -> str:
         text = text.replace(
             "{{max_new_tokens}}", str(cfg.prediction.max_length_inference)
         )
-        text = text.replace("{{use_fast}}", str(cfg.tokenizer.use_fast))
         text = text.replace("{{do_sample}}", str(cfg.prediction.do_sample))
         text = text.replace("{{num_beams}}", str(cfg.prediction.num_beams))
         text = text.replace("{{temperature}}", str(cfg.prediction.temperature))
