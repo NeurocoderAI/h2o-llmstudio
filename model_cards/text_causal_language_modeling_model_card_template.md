@@ -43,6 +43,7 @@ generate_text = pipeline(
     model="{{repo_id}}",
     torch_dtype="auto",
     trust_remote_code=True,
+    use_fast={{use_fast}},
     device_map={"": "cuda:0"},
     token=True,
 )
@@ -86,6 +87,7 @@ messages = {{sample_messages}}
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_name,
+    use_fast={{use_fast}},
     trust_remote_code={{trust_remote_code}},
 )
 model = AutoModelForCausalLM.from_pretrained(

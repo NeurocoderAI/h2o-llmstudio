@@ -160,7 +160,4 @@ if __name__ == "__main__":
                 "Exception occurred during H2O LLM Studio run:", exc_info=True
             )
             write_flag(flag_path.format(local_rank), "info", "See logs")
-
-        # Clean up any potential DDP processes
-        # Do not kill parent process, as it is the main/wave process
-        kill_ddp_processes(kill_parent=False)
+        kill_ddp_processes()

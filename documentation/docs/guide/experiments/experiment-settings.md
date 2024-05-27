@@ -43,7 +43,6 @@ import TSweightDecay from '../../tooltips/experiments/_weight-decay.mdx';
 import TSGradientclip from '../../tooltips/experiments/_gradient-clip.mdx';
 import TSgradAccumulation from '../../tooltips/experiments/_grad-accumulation.mdx';
 import TSlora from '../../tooltips/experiments/_lora.mdx';
-import TSuseDora from '../../tooltips/experiments/_use-dora.mdx';
 import TSloraR from '../../tooltips/experiments/_lora-r.mdx';
 import TSloraAlpha from '../../tooltips/experiments/_lora-alpha.mdx';
 import TSloraDropout from '../../tooltips/experiments/_lora-dropout.mdx';
@@ -286,10 +285,6 @@ The settings under each category are listed and described below.
 ### Lora
 
 <TSlora/>
-
-### Use Dora
-
-<TSuseDora/>
 
 ### Lora R
 

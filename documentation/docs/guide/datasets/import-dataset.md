@@ -8,15 +8,10 @@ import upload_dataset from './upload-dataset.png';
 import upload_local_file from './upload-local-file.png';
 import import_s3_bucket from './import-s3-bucket.png';
 import import_kaggle_dataset from './import-kaggle-dataset.png';
-import DatasetNameTooltip from '../../tooltips/experiments/_dataset-name.mdx';
-import ProblemTypeTooltip from '../../tooltips/experiments/_problem-type.mdx';
 import TrainDataframeTooltip from '../../tooltips/experiments/_train-dataframe.mdx';
 import ValidationDataframeTooltip from '../../tooltips/experiments/_validation-dataframe.mdx';
-import SystemColumnTooltip from '../../tooltips/experiments/_system-column.mdx';
 import PromptColumnTooltip from '../../tooltips/experiments/_prompt-column.mdx';
-import RejectedPromptColumnTooltip from '../../tooltips/experiments/_rejected-prompt-column.mdx';
 import AnswerColumnTooltip from '../../tooltips/experiments/_answer-column.mdx';
-import RejectedAnswerColumnTooltip from '../../tooltips/experiments/_rejected-answer-column.mdx';
 import ParentIdColumnTooltip from '../../tooltips/experiments/_parent-id-column.mdx';
 
 # Import a dataset
@@ -119,29 +114,22 @@ Follow the relevant steps below to import a dataset to H2O LLM Studio.
  
 ## Configure dataset
 
-Once you have successfully uploaded or imported your dataset, you can configure the dataset settings. Depending on the problem type, you may need to specify the following:
+Once you have successfully uploaded or imported your dataset, you can configure the dataset settings.
 
 :::info Tip
 You can upload a `.zip` file with both training and validation sets to avoid having to separately upload files.
 :::
 
-- **Dataset name:** <DatasetNameTooltip />
-
-- **Problem Type:** <ProblemTypeTooltip />
+- **Dataset name:** <br/>
+    A suitable name for the whole dataset which includes both the train dataframe and validation dataframe.
 
 - **Train Dataframe:** <TrainDataframeTooltip />
 
 - **Validation Dataframe:** <ValidationDataframeTooltip />
 
-- **System Column:** <SystemColumnTooltip />
-
 - **Prompt Column:** <PromptColumnTooltip />
 
-- **Rejected Prompt Column:** <RejectedPromptColumnTooltip />
-
 - **Answer Column:** <AnswerColumnTooltip />
-
-- **Rejected Answer Column:** <RejectedAnswerColumnTooltip />
 
 - **Parent Id Column:** <ParentIdColumnTooltip />
 

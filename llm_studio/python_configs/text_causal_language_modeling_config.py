@@ -38,7 +38,7 @@ class ConfigNLPCausalLMDataset(DefaultConfig):
     data_sample: float = 1.0
     data_sample_choice: Tuple[str, ...] = ("Train", "Validation")
 
-    system_column: str = "system"
+    system_column: str = "None"
     prompt_column: Tuple[str, ...] = ("instruction", "input")
     answer_column: str = "output"
     parent_id_column: str = "None"
@@ -85,15 +85,13 @@ class ConfigNLPCausalLMDataset(DefaultConfig):
             prefer_with=lambda column: column in ("system",), add_none=True
         )
         self._possible_values["prompt_column"] = possible_values.Columns(
-            prefer_with=lambda column: column
-            in ("instruction", "prompt", "question", "input", "user")
+            prefer_with=lambda column: column in ("instruction", "prompt")
         )
         self._possible_values["answer_column"] = possible_values.Columns(
-            prefer_with=lambda column: column
-            in ("answer", "output", "response", "assistant", "chosen")
+            prefer_with=lambda column: column in ("answer", "output")
         )
         self._possible_values["parent_id_column"] = possible_values.Columns(
-            prefer_with=lambda column: column in ("parent", "parent_id"), add_none=True
+            prefer_with=lambda column: column in ("parent",), add_none=True
         )
 
         self._nesting.add(
@@ -151,7 +149,6 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
     grad_accumulation: int = 1
 
     lora: bool = True
-    use_dora: bool = False
     lora_r: int = 4
     lora_alpha: int = 16
     lora_dropout: float = 0.05
@@ -198,7 +195,6 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
             values=(
                 ("last", "Last"),
                 ("best", "Best"),
-                ("each_evaluation_epoch", "Each evaluation epoch"),
                 ("disable", "Disable"),
             ),
             allow_custom=False,
@@ -220,7 +216,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
             ],
         )
         self._nesting.add(
-            ["use_dora", "lora_r", "lora_alpha", "lora_dropout", "lora_target_modules"],
+            ["lora_r", "lora_alpha", "lora_dropout", "lora_target_modules"],
             [Dependency(key="lora", value=False, is_set=False)],
         )
 
@@ -232,7 +228,7 @@ class ConfigNLPCausalLMTokenizer(DefaultConfig):
     max_length: int = 512
     add_prompt_answer_tokens: bool = False
     padding_quantile: float = 1.0
-    tokenizer_kwargs: str = '{"use_fast": true, "add_prefix_space": false}'
+    use_fast: bool = True
 
     def __post_init__(self):
         super().__post_init__()

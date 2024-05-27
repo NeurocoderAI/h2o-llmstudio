@@ -86,52 +86,53 @@ def check_disk_space(model: torch.nn.Module, path: str):
 
 
 # TODO: currently not saving optimizer
-def save_checkpoint(model: torch.nn.Module, path: str, cfg: Any) -> None:
+def save_checkpoint(model: torch.nn.Module, path: str, cfg: Any):
     """Saves a model checkpoint if the path is provided.
 
     Args:
         model: model to save
         path: path to save the checkpoint to
+
+    Returns:
+        Dictionary with all the keys to save
     """
 
-    if not path:
-        raise ValueError(f"Path must be provided. Received {path}.")
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
     if cfg.environment.use_deepspeed:
-        # gather model params from all ranks when using Deepspeed
-        status = model.save_16bit_model(path, "checkpoint.pth")
-        if status:
-            if cfg.environment._local_rank == 0:
-                checkpoint = {
-                    "model": torch.load(
-                        os.path.join(path, "checkpoint.pth"), map_location="cpu"
-                    )
-                }
-        else:
-            logger.warning(
-                "deepspeed.save_16bit_model didn't save the model, since"
-                " stage3_gather_16bit_weights_on_model_save=False."
-                " Saving the full checkpoint instead"
-            )
-            model.save_checkpoint(os.path.join(path, "ds_checkpoint"))
-            if cfg.environment._local_rank == 0:
-                # load to cpu
-                state_dict = get_fp32_state_dict_from_zero_checkpoint(
+        if path is not None:
+            # gather model params from all ranks when using Deepspeed
+            status = model.save_16bit_model(path, "checkpoint.pth")  # type: ignore
+            if status:
+                if cfg.environment._local_rank == 0:
+                    checkpoint = {
+                        "model": torch.load(
+                            os.path.join(path, "checkpoint.pth"), map_location="cpu"
+                        )
+                    }
+            else:
+                logger.warning(
+                    "deepspeed.save_16bit_model didn't save the model, since"
+                    " stage3_gather_16bit_weights_on_model_save=False."
+                    " Saving the full checkpoint instead"
+                )
+                model.save_checkpoint(  # type: ignore
                     os.path.join(path, "ds_checkpoint")
                 )
-                # save as normal checkpoint that can be loaded by `load_state_dict`
-                checkpoint = {"model": state_dict}
-                torch.save(checkpoint, os.path.join(path, "checkpoint.pth"))
-                shutil.rmtree(os.path.join(path, "ds_checkpoint"))
+                if cfg.environment._local_rank == 0:
+                    # load to cpu
+                    state_dict = get_fp32_state_dict_from_zero_checkpoint(
+                        os.path.join(path, "ds_checkpoint")
+                    )
+                    # save as normal checkpoint that can be loaded by `load_state_dict`
+                    checkpoint = {"model": state_dict}
+                    torch.save(checkpoint, os.path.join(path, "checkpoint.pth"))
+                    shutil.rmtree(os.path.join(path, "ds_checkpoint"))
 
     else:
         if cfg.environment._local_rank == 0:
             model = unwrap_model(model)
             checkpoint = {"model": model.state_dict()}
-            torch.save(checkpoint, os.path.join(path, "checkpoint.pth"))
+            if path is not None:
+                torch.save(checkpoint, os.path.join(path, "checkpoint.pth"))
 
     if (
         cfg.environment._local_rank == 0
@@ -702,11 +703,6 @@ def set_generation_config(backbone: torch.nn.Module, cfg_prediction: Any):
         backbone.generation_config.temperature = cfg_prediction.temperature
         backbone.generation_config.top_k = cfg_prediction.top_k
         backbone.generation_config.top_p = cfg_prediction.top_p
-    else:
-        backbone.generation_config.temperature = None
-        backbone.generation_config.top_k = None
-        backbone.generation_config.top_p = None
-
     backbone.generation_config.transformers_version = transformers.__version__
     return backbone
 
@@ -1018,7 +1014,6 @@ def prepare_lora(cfg, backbone):
         logger.info(f"Lora module names: {target_modules}")
 
     lora_config = LoraConfig(
-        use_dora=cfg.training.use_dora,
         r=cfg.training.lora_r,
         lora_alpha=cfg.training.lora_alpha,
         target_modules=target_modules,
